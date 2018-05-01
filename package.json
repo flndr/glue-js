@@ -3,7 +3,7 @@
     "version": "0.0.4",
     "description": "",
     "main": "dist/index.js",
-    "types": "dist/src/index.ts",
+    "types": "dist/src/index.d.ts",
     "scripts": {
         "release": "release-it",
         "cleanBefore": "shx rm -rf dist",
