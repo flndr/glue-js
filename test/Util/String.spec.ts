@@ -1,4 +1,4 @@
-import { renderTemplate, replaceAll } from "../Util/String";
+import { renderTemplate, replaceAll } from "../../src/Util/String";
 
 describe( 'Util/String', () => {
     

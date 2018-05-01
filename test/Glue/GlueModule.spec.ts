@@ -1,5 +1,5 @@
-import GlueModule from '../src/Glue/GlueModule';
-import Glue from '../src/Glue/Glue';
+import GlueModule from '../../src/Glue/GlueModule';
+import Glue from '../../src/Glue/Glue';
 
 let glue : Glue      = new Glue();
 const body : Element = document.getElementsByTagName( 'body' )[ 0 ];

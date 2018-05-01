@@ -1,9 +1,9 @@
-import { renderTemplate } from '../src/Util/String';
+import { renderTemplate } from '../../src/Util/String';
 
-import Glue from '../src/Glue/Glue';
-import GlueErrors from '../src/Glue/GlueErrors';
-import GlueModule from '../src/Glue/GlueModule';
-import GlueConfig from '../src/Glue/GlueConfig';
+import Glue from '../../src/Glue/Glue';
+import GlueErrors from '../../src/Glue/GlueErrors';
+import GlueModule from '../../src/Glue/GlueModule';
+import GlueConfig from '../../src/Glue/GlueConfig';
 
 class MyModule extends GlueModule {}
 

@@ -1,8 +1,8 @@
-import { isFunction, isNonEmptyString } from "../Util/Validation";
+import { isNonEmptyString, isFunction } from "../../src/Util/Validation";
 
 let mock = {
     invalidStrings        : [
-        null, 3, 1.23, function() {
+        null, 3, 1.23, function () {
         }, [], {}, '', document.getElementById( '404' )
     ],
     invalidFunctions      : [ 'notAFunction', null, 3, 1.23, [], {} ],
@@ -18,7 +18,7 @@ let mock = {
 };
 
 describe( 'Util/Validation', () => {
-
+    
     describe( 'isFunction()', () => {
         
         it( 'should be defined', () => {
@@ -33,11 +33,11 @@ describe( 'Util/Validation', () => {
         );
         
         it( 'should return true when param is a function', () =>
-            expect( isFunction( function(){} ) ).toBe( true )
+            expect( isFunction( function () {
+            } ) ).toBe( true )
         );
         
     } );
-    
     
     describe( 'isNonEmptyString()', () => {
         

@@ -2,9 +2,14 @@
     "name": "module-glue-ts",
     "version": "0.0.3",
     "description": "",
-    "main": "src/index.ts",
+    "main": "dist/index.js",
+    "types" : "dist/src/index.ts",
     "scripts": {
         "release": "release-it",
+        "cleanBefore": "shx rm -rf dist",
+        "cleanAfter": "shx rm -rf dist/test",
+        "bundle": "cross-env NODE_ENV=build webpack",
+        "build": "npm run cleanBefore && npm run bundle && npm run cleanAfter",
         "test": "cross-env NODE_ENV=test karma start karma.conf.js --browsers PhantomJS --single-run",
         "tdd": "cross-env NODE_ENV=test karma start karma.conf.js --browsers Chrome"
     },
@@ -26,7 +31,7 @@
         "@babel/preset-typescript": "7.0.0-beta.46",
         "@types/clone": "0.1.30",
         "@types/jasmine": "2.8.6",
-        "@types/node": "10.0.0",
+        "@types/node": "9.6.7",
         "@types/webpack-env": "1.13.6",
         "babel-loader": "8.0.0-beta.2",
         "babel-plugin-istanbul": "4.1.6",
@@ -43,11 +48,13 @@
         "karma-sourcemap-loader": "0.3.7",
         "karma-webpack": "3.0.0",
         "release-it": "7.4.2",
+        "shx": "^0.2.2",
         "ts-loader": "4.2.0",
         "tslib": "1.9.0",
         "tslint": "5.9.1",
         "typescript": "2.8.3",
         "webpack": "4.6.0",
-        "webpack-cli": "2.0.15"
+        "webpack-cli": "2.0.15",
+        "webpack-visualizer-plugin": "0.1.11"
     }
 }

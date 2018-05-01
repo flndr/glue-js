@@ -1,4 +1,4 @@
-import { createUniqueId, isDomElement } from './Dom';
+import { createUniqueId, isDomElement } from "../../src/Util/Dom";
 
 const body : Element = document.getElementsByTagName( 'body' )[ 0 ];
 
@@ -67,11 +67,10 @@ describe( 'Util/Dom', () => {
         it( 'should return an id with prefix and suffix', () => {
             const prefix = 'pre_';
             const suffix = '_suffix';
-            const id = createUniqueId( prefix, suffix );
+            const id     = createUniqueId( prefix, suffix );
             expect( id ).toContain( prefix );
             expect( id ).toContain( suffix );
         } );
-        
         
     } );
 } );

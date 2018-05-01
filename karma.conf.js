@@ -8,7 +8,7 @@ module.exports = function( config ) {
         frameworks : [ 'jasmine' ],
 
         files : [
-            'test/helpers/*.helper.ts',
+            '**/*.helper.ts',
             '**/*.spec.ts'
         ],
 
