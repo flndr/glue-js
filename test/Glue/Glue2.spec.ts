@@ -50,6 +50,20 @@ describe( 'Glue', () => {
         
     } );
     
+    describe( '.registerLazyModule()', () => {
+        
+        it( 'should have a method to register lazy modules', () => {
+            expect( typeof glue.registerLazyModule ).toBe( 'function' );
+        } );
+        
+        it( 'should have a method to register lazy modules', () => {
+            glue.registerLazyModule( 'Dummy', () => import('./Dummy') );
+            
+            expect( typeof glue.registerLazyModule ).toBe( 'function' );
+        } );
+        
+    } );
+    
     describe( 'getRootElement()', () => {
         
         it( 'should have a method to get the root dom node', () => {

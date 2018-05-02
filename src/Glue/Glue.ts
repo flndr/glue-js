@@ -11,6 +11,7 @@ export default class Glue {
     
     private CONFIG : GlueConfig;
     
+    private lazyModules : { [ key : string ] : () => Promise<any> }                  = {};
     private registeredModules : { [ key : string ] : new () => GlueModuleInterface } = {};
     private runningModules : { [ key : string ] : GlueModuleInterface }              = {};
     
@@ -29,11 +30,15 @@ export default class Glue {
     
     public registerModule( module : new () => GlueModule ) : void {
         
+        if ( typeof module !== 'function' ) {
+            throw new Error( GlueErrors.NOT_A_GLUE_MODULE );
+        }
+        
         const inst = new module();
         
-        //if ( !(inst instanceof GlueModule) ) {
-        //    throw new Error( GlueErrors.NOT_A_GLUE_MODULE );
-        //}
+        if ( !(inst instanceof GlueModule) ) {
+            throw new Error( GlueErrors.NOT_A_GLUE_MODULE );
+        }
         
         if ( this.registeredModules.hasOwnProperty( inst.name ) ) {
             const msg = renderTemplate( GlueErrors.ALREADY_REGISTERED, { name : inst.name } );
@@ -43,8 +48,22 @@ export default class Glue {
         this.registeredModules[ inst.name ] = module;
     }
     
+    public registerLazyModule( name : string, dynamicImportFunc : () => Promise<any> ) : void {
+        this.lazyModules[ name ] = dynamicImportFunc;
+    }
+    
     public isModuleRegistered( moduleName : string ) : boolean {
-        return typeof this.registeredModules[ moduleName ] != 'undefined';
+        return this.registeredModules.hasOwnProperty( moduleName ) ||
+            this.lazyModules.hasOwnProperty( moduleName );
+    }
+    
+    private isLazyModule( moduleName : string ) : boolean {
+        return this.lazyModules.hasOwnProperty( moduleName );
+    }
+    
+    private async loadLazyModule( moduleName : string ) : Promise<any> {
+        const importedFileContents = await this.lazyModules[ moduleName ]();
+        return importedFileContents;
     }
     
     private async startModule( el : Element ) : Promise<void> {
@@ -55,6 +74,12 @@ export default class Glue {
             const msg = renderTemplate( GlueWarnings.START_MODULE_NOT_REGISTERED, { moduleName } );
             this.warn( msg, el );
             return;
+        }
+    
+        if ( this.isLazyModule( moduleName ) ) {
+            const m = await this.loadLazyModule( moduleName );
+            this.registerModule( m );
+            delete this.lazyModules[ moduleName ];
         }
         
         try {
