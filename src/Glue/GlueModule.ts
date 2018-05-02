@@ -26,45 +26,34 @@ export default abstract class GlueModule implements GlueModuleInterface {
     }
     
     public async start() : Promise<void> {
+        this.assignId();
+        await this.injectMarkup();
+    }
+
+    private assignId() {
         this._id = createUniqueId();
-        return this._start();
     }
     
-    private async _start() : Promise<void> {
-        
-        await this.load();
-        
+    private async injectMarkup() {
         this.newMarkup = await this.render();
-        
+
         if ( this.element && this.newMarkup && this.newMarkup !== '' ) {
             this.oldMarkup         = this.element.innerHTML;
             this.element.innerHTML = this.newMarkup;
         }
-        
-        await this.init();
     }
-    
-    public async load() : Promise<void> {
-    }
-    
-    public async render() : Promise<string> {
-        return '';
-    }
-    
-    public async init() : Promise<void> {
-    }
-    
-    public async destroy() : Promise<void> {
-    }
-    
-    public async stop() : Promise<void> {
-        await this.destroy();
-        this._stop();
-    }
-    
-    private _stop() : void {
+
+    private restoreMarkup() {
         if ( this.element && this.oldMarkup && this.oldMarkup !== '' ) {
             this.element.innerHTML = this.oldMarkup;
         }
+    }
+
+    public async render() : Promise<string> {
+        return null;
+    }
+    
+    public async stop() : Promise<void> {
+        this.restoreMarkup();
     }
 }
