@@ -8,11 +8,9 @@ export default abstract class GlueModule implements GlueModuleInterface {
     readonly name: string;
     readonly id: string;
     start(): Promise<void>;
-    private _start();
-    load(): Promise<void>;
+    private assignId();
+    private injectMarkup();
+    private restoreMarkup();
     render(): Promise<string>;
-    init(): Promise<void>;
-    destroy(): Promise<void>;
     stop(): Promise<void>;
-    private _stop();
 }

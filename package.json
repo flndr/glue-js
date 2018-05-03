@@ -5,11 +5,11 @@
     "main": "dist/index.js",
     "types": "dist/src/index.d.ts",
     "scripts": {
-        "release": "release-it",
+        "release": "npm run build && release-it",
         "cleanBefore": "shx rm -rf dist",
         "cleanAfter": "shx rm -rf dist/test",
         "bundle": "cross-env NODE_ENV=build webpack",
-        "build": "npm run cleanBefore && npm run bundle && npm run cleanAfter",
+        "build": "npm run test && npm run cleanBefore && npm run bundle && npm run cleanAfter",
         "test": "cross-env NODE_ENV=test karma start karma.conf.js --browsers PhantomJS --single-run",
         "tdd": "cross-env NODE_ENV=test karma start karma.conf.js --browsers Chrome"
     },
