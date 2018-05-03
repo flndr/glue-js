@@ -2,11 +2,14 @@ const path         = require( "path" );
 const Webpack      = require( 'webpack' );
 const DefinePlugin = Webpack.DefinePlugin;
 
-const NPM_RUN_BUILD  = 'build';
+const NPM_RUN_BUILD  = 'bundle';
 const NPM_RUN_DEV    = 'dev';
 const NPM_RUN_SCRIPT = process.env.npm_lifecycle_event || NPM_RUN_DEV;
 
 const IS_DEV = NPM_RUN_SCRIPT === NPM_RUN_BUILD ? false : true;
+
+console.log( 'WEPACK NPM_RUN_SCRIPT', NPM_RUN_SCRIPT );
+console.log( 'WEPACK IS_DEV', IS_DEV );
 
 const config = {
 

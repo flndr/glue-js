@@ -5,7 +5,7 @@
     "main": "dist/index.js",
     "types": "dist/src/index.d.ts",
     "scripts": {
-        "release": "npm run build && release-it",
+        "release": "npm run test && npm run cleanBefore && npm run bundle && npm run cleanAfter && release-it",
         "cleanBefore": "shx rm -rf dist",
         "cleanAfter": "shx rm -rf dist/test",
         "bundle": "cross-env NODE_ENV=build webpack",
