@@ -62,8 +62,14 @@ export default class Glue {
     }
     
     private async loadLazyModule( moduleName : string ) : Promise<any> {
+    
         const importedFileContents = await this.lazyModules[ moduleName ]();
-        return importedFileContents;
+    
+        if ( !importedFileContents || !importedFileContents.hasOwnProperty( 'default' ) ) {
+            throw new Error( GlueErrors.LAZY_IMPORT_HAS_NO_DEFAULT );
+        }
+    
+        return importedFileContents.default;
     }
     
     private async startModule( el : Element ) : Promise<void> {
@@ -92,14 +98,11 @@ export default class Glue {
             
             await module.start();
             
-            //if ( !module.id ) {
-            //    throw new Error( GlueErrors.MODULE_INIT_ERROR );
-            //}
-            
             this.runningModules[ module.id ] = module;
             
         } catch ( e ) {
-            this.warn( 'Failed instanciaton:', e );
+            const msg = renderTemplate( GlueWarnings.START_FAILED, { name : moduleName } );
+            this.warn( msg, e );
             return;
         }
     }

@@ -1,0 +1,1 @@
+export const DummyMarkup = '<div>Lazy loaded markup</div>';
