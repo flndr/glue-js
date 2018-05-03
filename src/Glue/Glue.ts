@@ -66,6 +66,7 @@ export default class Glue {
         const importedFileContents = await this.lazyModules[ moduleName ]();
     
         if ( !importedFileContents || !importedFileContents.hasOwnProperty( 'default' ) ) {
+            this.warn( 'Got his from lazy import:', importedFileContents );
             throw new Error( GlueErrors.LAZY_IMPORT_HAS_NO_DEFAULT );
         }
     
