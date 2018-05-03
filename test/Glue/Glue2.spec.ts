@@ -10,7 +10,9 @@ import { DummyMarkup } from './Mocks/DummyMarkup';
 import StartFailModule from './Mocks/StartFailModule';
 import { DummyError } from './Mocks/DummyError';
 
-class MyModule extends GlueModule {}
+class MyModule extends GlueModule {
+    get name() { return 'MyModule'; }
+}
 
 let glue : Glue = new Glue();
 const body : Element = document.getElementsByTagName( 'body' )[ 0 ];
@@ -146,13 +148,13 @@ describe( 'Glue', () => {
             spyOn( console, 'warn' );
             
             const moduleName = 'Dummy';
-            const warning    = renderTemplate( GlueWarnings.START_MODULE_NOT_REGISTERED, { moduleName } );
+            const warning    = renderTemplate( GlueWarnings.START_MODULE_NOT_REGISTERED, { name : moduleName } );
             body.innerHTML   = `<div id="el" data-js-module="${moduleName}"></div>`;
             const el         = document.getElementById( 'el' );
             
             await glue.start();
             
-            expect( console.warn ).toHaveBeenCalledWith( [ warning, el ] );
+            expect( console.warn ).toHaveBeenCalledWith( warning, el );
         } );
         
         it( 'should throw when module start fails', async () => {
@@ -167,7 +169,7 @@ describe( 'Glue', () => {
             
             await glue.start();
             
-            expect( console.warn ).toHaveBeenCalledWith( [ warning, DummyError ] );
+            expect( console.warn ).toHaveBeenCalledWith( warning, DummyError );
        
         } );
         

@@ -11,6 +11,7 @@ describe( 'GlueModule', () => {
     it( 'should return its class name', async () => {
         
         class MyModule extends GlueModule {
+            name = 'MyModule';
         }
         
         const module = new MyModule();
@@ -21,6 +22,7 @@ describe( 'GlueModule', () => {
     it( 'should return its id', async () => {
         
         class MyModule extends GlueModule {
+            name = 'MyModule';
         }
         
         const module = new MyModule();
@@ -36,6 +38,7 @@ describe( 'GlueModule', () => {
         const MyModuleHTML = '<p>some<span>markup</span></p>';
         
         class MyModule extends GlueModule {
+            name = 'MyModule';
             async render() : Promise<string> {
                 return MyModuleHTML;
             }
@@ -56,6 +59,7 @@ describe( 'GlueModule', () => {
         body.innerHTML = `<div id="my-module" data-js-module="MyModule">${originalMarkup}</div>`;
         
         class MyModule extends GlueModule {
+            name = 'MyModule';
             async render() : Promise<string> {
                 return injectedMarkup;
             }
@@ -79,6 +83,7 @@ describe( 'GlueModule', () => {
         body.innerHTML = `<div id="my-module" data-js-module="MyModule">${originalMarkup}</div>`;
         
         class MyModule extends GlueModule {
+            name = 'MyModule';
         }
     
         const module   = new MyModule();
@@ -105,6 +110,7 @@ describe( 'GlueModule', () => {
         const spyThree = spyOn( spy, 'three' );
         
         class MyModule extends GlueModule {
+            name = 'MyModule';
             public async start() : Promise<void> {
                 await spyOne();
                 await spyOne();

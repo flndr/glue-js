@@ -66,7 +66,6 @@ export default class Glue {
         const importedFileContents = await this.lazyModules[ moduleName ]();
     
         if ( !importedFileContents || !importedFileContents.hasOwnProperty( 'default' ) ) {
-            this.warn( 'Got his from lazy import:', importedFileContents );
             throw new Error( GlueErrors.LAZY_IMPORT_HAS_NO_DEFAULT );
         }
     
@@ -78,13 +77,14 @@ export default class Glue {
         const moduleName : string = this.getModuleNameFromElement( el );
         
         if ( !this.isModuleRegistered( moduleName ) ) {
-            const msg = renderTemplate( GlueWarnings.START_MODULE_NOT_REGISTERED, { moduleName } );
-            this.warn( msg, el );
+            const msg = renderTemplate( GlueWarnings.START_MODULE_NOT_REGISTERED, { name : moduleName } );
+            console.warn( msg, el );
             return;
         }
     
         if ( this.isLazyModule( moduleName ) ) {
             const m = await this.loadLazyModule( moduleName );
+            
             this.registerModule( m );
             delete this.lazyModules[ moduleName ];
         }
@@ -103,7 +103,7 @@ export default class Glue {
             
         } catch ( e ) {
             const msg = renderTemplate( GlueWarnings.START_FAILED, { name : moduleName } );
-            this.warn( msg, e );
+            console.warn( msg, e );
             return;
         }
     }
@@ -133,14 +133,6 @@ export default class Glue {
     
     private getModuleNameFromElement( element : Element ) : string {
         return element.getAttribute( this.CONFIG.ATTR_MODULE_NAME ) as string;
-    }
-    
-    //private log( ... args : any[] ) : void {
-    //    console.log( args );
-    //}
-    
-    private warn( ... args : any[] ) : void {
-        console.warn( args );
     }
     
 }
