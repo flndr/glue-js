@@ -17,14 +17,6 @@ export default abstract class GlueModule implements GlueModuleInterface {
         this._el = el;
     }
     
-    public abstract get name() : string; /* {
-        ATTENTION:
-        if you don't ugily/mangle your code you can use this:
-        return this.constructor.name;
-        otherwise you have to return the name of the class:
-        return 'GlueModule';
-    } */
-    
     public get id() : string {
         return this._id;
     }

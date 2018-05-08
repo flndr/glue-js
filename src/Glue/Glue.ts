@@ -28,9 +28,13 @@ export default class Glue {
         return this.CONFIG.ROOT_ELEMENT;
     }
     
-    public registerModule( module : new () => GlueModule ) : void {
+    public registerModule( name : string, module : new () => GlueModule ) : void {
         
-        if ( typeof module !== 'function' ) {
+        if ( !name || typeof name !== 'string' || name === '' ) {
+            throw new Error( GlueErrors.NOT_A_STRING );
+        }
+        
+        if ( !module || typeof module !== 'function' ) {
             throw new Error( GlueErrors.NOT_A_GLUE_MODULE );
         }
         
@@ -40,12 +44,12 @@ export default class Glue {
             throw new Error( GlueErrors.NOT_A_GLUE_MODULE );
         }
         
-        if ( this.registeredModules.hasOwnProperty( inst.name ) ) {
-            const msg = renderTemplate( GlueErrors.ALREADY_REGISTERED, { name : inst.name } );
+        if ( this.registeredModules.hasOwnProperty( name ) ) {
+            const msg = renderTemplate( GlueErrors.ALREADY_REGISTERED, { name } );
             throw new Error( msg );
         }
         
-        this.registeredModules[ inst.name ] = module;
+        this.registeredModules[ name ] = module;
     }
     
     public registerLazyModule( name : string, dynamicImportFunc : () => Promise<any> ) : void {
@@ -83,9 +87,8 @@ export default class Glue {
         }
     
         if ( this.isLazyModule( moduleName ) ) {
-            const m = await this.loadLazyModule( moduleName );
-            
-            this.registerModule( m );
+            const creator = await this.loadLazyModule( moduleName );
+            this.registerModule( moduleName, creator );
             delete this.lazyModules[ moduleName ];
         }
         

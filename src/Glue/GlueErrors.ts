@@ -1,5 +1,5 @@
-
 namespace GlueErrors {
+    export const NOT_A_STRING               = "Could not register module: Name must be a string.";
     export const NOT_A_GLUE_MODULE          = "Could not register module: Class must extend base module class.";
     export const ALREADY_REGISTERED         = "Could not register module: A module with name '{name}' was already registered before.";
     export const ALREADY_STARTED            = "This has no effect now. Configuration has to be done before starting.";
