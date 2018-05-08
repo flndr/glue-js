@@ -8,6 +8,7 @@ import GlueConfig from '../../src/Glue/GlueConfig';
 
 import { DummyMarkup } from './Mocks/DummyMarkup';
 import StartFailModule from './Mocks/StartFailModule';
+import StopFailModule from './Mocks/StopFailModule';
 import { DummyError } from './Mocks/DummyError';
 
 class MyModule extends GlueModule {
@@ -183,7 +184,7 @@ describe( 'Glue', () => {
             expect( third.innerHTML ).toEqual( 'MyThirdModule' );
         } );
     
-        it( 'should only start modules of a dom node, when specified', async () => {
+        it( 'should limit starting of modules to a dom node, when specified', async () => {
         
             class MyFirstModule extends GlueModule {
                 async render() {
@@ -290,9 +291,417 @@ describe( 'Glue', () => {
             await glue.start();
             
             expect( console.warn ).toHaveBeenCalledWith( warning, DummyError );
-       
+    
+        } );
+    
+        it( 'should start nested modules', async () => {
+        
+            const spy = {
+                one   : async () => {},
+                two   : async () => {},
+                three : async () => {}
+            };
+        
+            const spyOne   = spyOn( spy, 'one' );
+            const spyTwo   = spyOn( spy, 'two' );
+            const spyThree = spyOn( spy, 'three' );
+        
+            body.innerHTML = `<div id="FirstLevel" data-js-module="FirstLevel"></div>`;
+        
+            class FirstLevel extends GlueModule {
+                async render() {
+                    return `<div id="SecondLevel" data-js-module="SecondLevel"></div>`;
+                }
+            
+                async start() {
+                    super.start();
+                    await spyOne();
+                }
+            }
+        
+            class SecondLevel extends GlueModule {
+                async render() {
+                    return `<div id="ThirdLevel" data-js-module="ThirdLevel"></div>`;
+                }
+            
+                async start() {
+                    super.start();
+                    await spyTwo();
+                }
+            }
+        
+            class ThirdLevel extends GlueModule {
+                async render() {
+                    return `DONE`;
+                }
+            
+                async start() {
+                    super.start();
+                    await spyThree();
+                }
+            }
+        
+            glue.registerModule( 'SecondLevel', SecondLevel );
+            glue.registerModule( 'ThirdLevel', ThirdLevel );
+            glue.registerModule( 'FirstLevel', FirstLevel );
+        
+            await glue.start();
+        
+            const first  = document.getElementById( 'FirstLevel' );
+            const second = document.getElementById( 'SecondLevel' );
+            const third  = document.getElementById( 'ThirdLevel' );
+        
+            const secondId = second.getAttribute( 'data-js-module-id' );
+            const thirdId  = third.getAttribute( 'data-js-module-id' );
+        
+            expect( third.innerHTML ).toEqual(
+                'DONE'
+            );
+        
+            expect( second.innerHTML ).toEqual(
+                '<div id="ThirdLevel" data-js-module="ThirdLevel" data-js-module-id="' + thirdId + '">' +
+                'DONE' +
+                '</div>'
+            );
+        
+            expect( first.innerHTML ).toEqual(
+                '<div id="SecondLevel" data-js-module="SecondLevel" data-js-module-id="' + secondId + '">' +
+                '<div id="ThirdLevel" data-js-module="ThirdLevel" data-js-module-id="' + thirdId + '">' +
+                'DONE' +
+                '</div>' +
+                '</div>'
+            );
+        
+            expect( spyThree ).toHaveBeenCalledTimes( 1 );
+            expect( spyTwo ).toHaveBeenCalledTimes( 1 );
+            expect( spyOne ).toHaveBeenCalledTimes( 1 );
+        
+            expect( spyTwo ).toHaveBeenCalledBefore( spyThree );
+            expect( spyOne ).toHaveBeenCalledBefore( spyTwo );
+        
+        } );
+    
+    } );
+    
+    describe( 'stop()', () => {
+        
+        it( 'should throw when 1st param is not a dom node', async () => {
+            
+            try {
+                await glue.stop( document.getElementById( 'meNotExist' ) );
+            } catch ( err ) {
+                expect( err.message ).toEqual( GlueErrors.NOT_A_DOM_ELEMENT );
+                return;
+            }
+            
+            try {
+                await glue.stop( null );
+            } catch ( err ) {
+                expect( err.message ).toEqual( GlueErrors.NOT_A_DOM_ELEMENT );
+                return;
+            }
+            
+            throw new Error( 'Promise should not be resolved' );
         } );
         
+        it( 'should warn when module stop fails', async () => {
+            
+            spyOn( console, 'warn' );
+            
+            glue.registerModule( 'StopFailModule', StopFailModule );
+            
+            const moduleName = 'StopFailModule';
+            const warning    = renderTemplate( GlueWarnings.STOP_FAILED, { name : moduleName } );
+            body.innerHTML   = `<div id="el" data-js-module="${moduleName}"></div>`;
+            
+            await glue.start();
+            await glue.stop();
+            
+            expect( console.warn ).toHaveBeenCalledWith( warning, DummyError );
+            
+        } );
+        
+        it( 'should stop all modules in root dom node by default', async () => {
+            
+            class MyFirstModule extends GlueModule {
+                async render() {
+                    return 'MyFirstModule';
+                }
+            }
+            
+            class MySecondModule extends GlueModule {
+                async render() {
+                    return 'MySecondModule';
+                }
+            }
+            
+            class MyThirdModule extends GlueModule {
+                async render() {
+                    return 'MyThirdModule';
+                }
+            }
+            
+            glue.registerModule( 'MyFirstModule', MyFirstModule );
+            glue.registerModule( 'MySecondModule', MySecondModule );
+            glue.registerModule( 'MyThirdModule', MyThirdModule );
+            
+            body.innerHTML = `
+                <div id="first" data-js-module="MyFirstModule"></div>
+                <div id="second" data-js-module="MySecondModule"></div>
+                <div id="third" data-js-module="MyThirdModule"></div>
+            `;
+            
+            await glue.start();
+            
+            const first  = document.getElementById( 'first' );
+            const second = document.getElementById( 'second' );
+            const third  = document.getElementById( 'third' );
+            
+            expect( first.innerHTML ).toEqual( 'MyFirstModule' );
+            expect( second.innerHTML ).toEqual( 'MySecondModule' );
+            expect( third.innerHTML ).toEqual( 'MyThirdModule' );
+            
+            await glue.stop();
+            
+            expect( first.innerHTML ).toEqual( '' );
+            expect( second.innerHTML ).toEqual( '' );
+            expect( third.innerHTML ).toEqual( '' );
+            
+        } );
+        
+        it( 'should stop all modules of a given dom node', async () => {
+            
+            class MyFirstModule extends GlueModule {
+                async render() {
+                    return 'MyFirstModule';
+                }
+            }
+            
+            class MySecondModule extends GlueModule {
+                async render() {
+                    return 'MySecondModule';
+                }
+            }
+            
+            class MyThirdModule extends GlueModule {
+                async render() {
+                    return 'MyThirdModule';
+                }
+            }
+            
+            glue.registerModule( 'MyFirstModule', MyFirstModule );
+            glue.registerModule( 'MySecondModule', MySecondModule );
+            glue.registerModule( 'MyThirdModule', MyThirdModule );
+            
+            body.innerHTML = `
+                <div id="domNode">
+                    <div id="first" data-js-module="MyFirstModule"></div>
+                    <div id="second" data-js-module="MySecondModule"></div>
+                </div>
+                <div id="third" data-js-module="MyThirdModule"></div>
+            `;
+            
+            await glue.start();
+            
+            const domNode = document.getElementById( 'domNode' );
+            const first   = document.getElementById( 'first' );
+            const second  = document.getElementById( 'second' );
+            const third   = document.getElementById( 'third' );
+            
+            expect( first.innerHTML ).toEqual( 'MyFirstModule' );
+            expect( second.innerHTML ).toEqual( 'MySecondModule' );
+            expect( third.innerHTML ).toEqual( 'MyThirdModule' );
+            
+            await glue.stop( domNode );
+            
+            expect( first.innerHTML ).toEqual( '' );
+            expect( second.innerHTML ).toEqual( '' );
+            expect( third.innerHTML ).toEqual( 'MyThirdModule' );
+            
+        } );
+        
+        it( 'should stop nested modules', async () => {
+            
+            const spy = {
+                one   : async () => {},
+                two   : async () => {},
+                three : async () => {}
+            };
+            
+            const spyOne   = spyOn( spy, 'one' );
+            const spyTwo   = spyOn( spy, 'two' );
+            const spyThree = spyOn( spy, 'three' );
+            
+            body.innerHTML = `<div id="FirstLevel" data-js-module="FirstLevel"></div>`;
+            
+            class FirstLevel extends GlueModule {
+                async render() {
+                    return `<div id="SecondLevel" data-js-module="SecondLevel"></div>`;
+                }
+                
+                async stop() {
+                    await spyOne();
+                    await super.stop();
+                }
+            }
+            
+            class SecondLevel extends GlueModule {
+                async render() {
+                    return `<div id="ThirdLevel" data-js-module="ThirdLevel"></div>`;
+                }
+                
+                async stop() {
+                    await spyTwo();
+                    await super.stop();
+                }
+            }
+            
+            class ThirdLevel extends GlueModule {
+                async render() {
+                    return `DONE`;
+                }
+                
+                async stop() {
+                    await spyThree();
+                    await super.stop();
+                }
+            }
+            
+            glue.registerModule( 'SecondLevel', SecondLevel );
+            glue.registerModule( 'ThirdLevel', ThirdLevel );
+            glue.registerModule( 'FirstLevel', FirstLevel );
+            
+            await glue.start();
+            
+            const first  = document.getElementById( 'FirstLevel' );
+            const second = document.getElementById( 'SecondLevel' );
+            const third  = document.getElementById( 'ThirdLevel' );
+            
+            const secondId = second.getAttribute( 'data-js-module-id' );
+            const thirdId  = third.getAttribute( 'data-js-module-id' );
+            
+            expect( third.innerHTML ).toEqual( 'DONE' );
+            
+            expect( second.innerHTML ).toEqual(
+                '<div id="ThirdLevel" data-js-module="ThirdLevel" data-js-module-id="' + thirdId + '">' +
+                'DONE' +
+                '</div>'
+            );
+            
+            expect( first.innerHTML ).toEqual(
+                '<div id="SecondLevel" data-js-module="SecondLevel" data-js-module-id="' + secondId + '">' +
+                '<div id="ThirdLevel" data-js-module="ThirdLevel" data-js-module-id="' + thirdId + '">' +
+                'DONE' +
+                '</div>' +
+                '</div>'
+            );
+            
+            await glue.stop();
+            
+            expect( first.innerHTML ).toEqual( '' );
+            
+            expect( spyOne ).toHaveBeenCalledTimes( 1 );
+            expect( spyTwo ).toHaveBeenCalledTimes( 1 );
+            expect( spyThree ).toHaveBeenCalledTimes( 1 );
+            
+            expect( document.getElementById( 'ThirdLevel' ) ).toEqual( null );
+            expect( document.getElementById( 'SecondLevel' ) ).toEqual( null );
+            
+            expect( spyThree ).toHaveBeenCalledBefore( spyTwo );
+            expect( spyTwo ).toHaveBeenCalledBefore( spyOne );
+            
+        } );
+        
+        it( 'should stop nested modules of given dom node', async () => {
+            
+            const spy = {
+                one   : async () => {},
+                two   : async () => {},
+                three : async () => {}
+            };
+            
+            const spyOne   = spyOn( spy, 'one' );
+            const spyTwo   = spyOn( spy, 'two' );
+            const spyThree = spyOn( spy, 'three' );
+            
+            body.innerHTML = `<div id="FirstLevel" data-js-module="FirstLevel"></div>`;
+            
+            class FirstLevel extends GlueModule {
+                async render() {
+                    return `<div id="SecondLevel" data-js-module="SecondLevel"></div>`;
+                }
+                
+                async stop() {
+                    await spyOne();
+                    await super.stop();
+                }
+            }
+            
+            class SecondLevel extends GlueModule {
+                async render() {
+                    return `<div id="ThirdLevel" data-js-module="ThirdLevel"></div>`;
+                }
+                
+                async stop() {
+                    await spyTwo();
+                    await super.stop();
+                }
+            }
+            
+            class ThirdLevel extends GlueModule {
+                async render() {
+                    return `DONE`;
+                }
+                
+                async stop() {
+                    await spyThree();
+                    await super.stop();
+                }
+            }
+            
+            glue.registerModule( 'SecondLevel', SecondLevel );
+            glue.registerModule( 'ThirdLevel', ThirdLevel );
+            glue.registerModule( 'FirstLevel', FirstLevel );
+            
+            await glue.start();
+            
+            const first  = document.getElementById( 'FirstLevel' );
+            const second = document.getElementById( 'SecondLevel' );
+            const third  = document.getElementById( 'ThirdLevel' );
+            
+            const secondId = second.getAttribute( 'data-js-module-id' );
+            const thirdId  = third.getAttribute( 'data-js-module-id' );
+            
+            expect( third.innerHTML ).toEqual( 'DONE' );
+            
+            expect( second.innerHTML ).toEqual(
+                '<div id="ThirdLevel" data-js-module="ThirdLevel" data-js-module-id="' + thirdId + '">' +
+                'DONE' +
+                '</div>'
+            );
+            
+            expect( first.innerHTML ).toEqual(
+                '<div id="SecondLevel" data-js-module="SecondLevel" data-js-module-id="' + secondId + '">' +
+                '<div id="ThirdLevel" data-js-module="ThirdLevel" data-js-module-id="' + thirdId + '">' +
+                'DONE' +
+                '</div>' +
+                '</div>'
+            );
+            
+            await glue.stop( second );
+            
+            expect( first.innerHTML ).toEqual( '<div id="SecondLevel" data-js-module="SecondLevel"></div>' );
+            
+            expect( spyOne ).toHaveBeenCalledTimes( 0 );
+            expect( spyTwo ).toHaveBeenCalledTimes( 1 );
+            expect( spyThree ).toHaveBeenCalledTimes( 1 );
+            
+            expect( document.getElementById( 'ThirdLevel' ) ).toEqual( null );
+            
+            expect( spyThree ).toHaveBeenCalledBefore( spyTwo );
+        } );
+    
+    
     } );
     
     describe( 'getRootElement()', () => {
@@ -348,8 +757,74 @@ describe( 'Glue', () => {
             `;
             
             expect(
-                glue.getUnstartedDomNodes( body )
+                glue.getUnstartedDomNodes()
             ).toEqual( [] );
+            
+        } );
+        
+    } );
+    
+    describe( 'getStartedDomNodes()', () => {
+        
+        it( 'should have a method to return all started modules dom nodes', () => {
+            expect( glue.getStartedDomNodes ).toBeDefined();
+        } );
+        
+        it( 'should return all started modules dom nodes', () => {
+            body.innerHTML = `
+                <div data-js-module="one"></div>
+                <div data-js-module="two" data-js-module-id="id12345"></div>
+                <div data-js-module="three" data-js-module-id="id98765"></div>
+                <div data-js-module="four"></div>
+            `;
+            
+            expect(
+                glue.getStartedDomNodes( body ).map( n => n.getAttribute( 'data-js-module' ) )
+            ).toEqual( [ 'two', 'three' ] );
+            
+            body.innerHTML = `
+                <div data-js-module="one" data-js-module-id="id1aa2345"></div>
+                <div data-js-module="two" data-js-module-id="id12345"></div>
+                <div data-js-module="three" data-js-module-id="id98765"></div>
+                <div data-js-module="four" data-js-module-id="id987dd65"></div>
+            `;
+            
+            expect(
+                glue.getStartedDomNodes().map( n => n.getAttribute( 'data-js-module-id' ) )
+            ).toEqual( [ 'id1aa2345', 'id12345', 'id98765', 'id987dd65' ] );
+            
+        } );
+        
+        describe( 'getStartedDomNodes()', () => {
+            
+            it( 'should have a method to return all started modules dom nodes', () => {
+                expect( glue.getStartedDomNodes ).toBeDefined();
+            } );
+            
+            it( 'should return all started modules dom nodes', () => {
+                body.innerHTML = `
+                    <div data-js-module="one"></div>
+                    <div data-js-module="two" data-js-module-id="id12345"></div>
+                    <div data-js-module="three" data-js-module-id="id98765"></div>
+                    <div data-js-module="four"></div>
+                `;
+                
+                expect(
+                    glue.getStartedDomNodes( body ).map( n => n.getAttribute( 'data-js-module' ) )
+                ).toEqual( [ 'two', 'three' ] );
+                
+                body.innerHTML = `
+                    <div data-js-module="one" data-js-module-id="id1aa2345"></div>
+                    <div data-js-module="two" data-js-module-id="id12345"></div>
+                    <div data-js-module="three" data-js-module-id="id98765"></div>
+                    <div data-js-module="four" data-js-module-id="id987dd65"></div>
+                `;
+                
+                expect(
+                    glue.getStartedDomNodes().map( n => n.getAttribute( 'data-js-module-id' ) )
+                ).toEqual( [ 'id1aa2345', 'id12345', 'id98765', 'id987dd65' ] );
+                
+            } );
             
         } );
         

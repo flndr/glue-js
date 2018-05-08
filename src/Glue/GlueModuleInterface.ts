@@ -1,6 +1,9 @@
+import GlueConfig from './GlueConfig';
+
 interface GlueModuleInterface {
     id : string;
     element : Element;
+    config : GlueConfig;
 
     // LIFECYCLE
 

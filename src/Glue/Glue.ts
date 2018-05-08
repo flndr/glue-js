@@ -99,9 +99,13 @@ export default class Glue {
             const module : GlueModuleInterface = new moduleClass();
             
             module.element = el;
+            module.config  = this.getConfigClone();
             
             await module.start();
-            
+    
+            // children
+            await this.start( module.element );
+
             this.runningModules[ module.id ] = module;
             
         } catch ( e ) {
@@ -122,9 +126,53 @@ export default class Glue {
         await Promise.all( modules.map(
             async ( m : Element ) => await this.startModule( m )
         ) );
-        
-        return;
     }
+    
+    public async stop( domNode : Element = this.CONFIG.ROOT_ELEMENT ) : Promise<void> {
+        
+        if ( !domNode || !isDomElement( domNode ) ) {
+            throw new Error( GlueErrors.NOT_A_DOM_ELEMENT );
+        }
+        
+        const startedModules : Element[] = this.getStartedDomNodes( domNode );
+        
+        if ( startedModules.length > 0 ) {
+            await Promise.all( startedModules.map(
+                async ( m : Element ) => await this.stop( m )
+            ) );
+        }
+        
+        if ( domNode.hasAttribute( this.CONFIG.ATTR_MODULE_ID ) ) {
+            await this.stopModule( domNode );
+        }
+        
+    }
+    
+    private async stopModule( el : Element ) : Promise<void> {
+        
+        const moduleId : string   = this.getModuleIdFromElement( el );
+        const moduleName : string = this.getModuleNameFromElement( el );
+        
+        if ( !this.runningModules.hasOwnProperty( moduleId ) ) {
+            return;
+        }
+        
+        try {
+    
+            const moduleInstance = this.runningModules[ moduleId ];
+    
+            delete this.runningModules[ moduleId ];
+            
+            await moduleInstance.stop();
+            
+        } catch ( e ) {
+            const msg = renderTemplate( GlueWarnings.STOP_FAILED, { name : moduleName } );
+            console.warn( msg, e );
+            return;
+        }
+    }
+    
+    
     
     //private findAllModules( domNode : Element = this.CONFIG.ROOT_ELEMENT ) : Element[] {
     //    return Array.from( domNode.querySelectorAll( '[' + this.CONFIG.ATTR_MODULE_NAME + ']' ) );
@@ -138,8 +186,22 @@ export default class Glue {
         );
     }
     
+    public getStartedDomNodes( domNode : Element = this.CONFIG.ROOT_ELEMENT ) : Element[] {
+        return Array.from(
+            domNode.querySelectorAll( `[${this.CONFIG.ATTR_MODULE_ID}]` )
+        );
+    }
+    
     private getModuleNameFromElement( element : Element ) : string {
         return element.getAttribute( this.CONFIG.ATTR_MODULE_NAME ) as string;
+    }
+    
+    private getModuleIdFromElement( element : Element ) : string {
+        return element.getAttribute( this.CONFIG.ATTR_MODULE_ID ) as string;
+    }
+    
+    public getConfigClone() : GlueConfig {
+        return { ... this.CONFIG };
     }
     
 }

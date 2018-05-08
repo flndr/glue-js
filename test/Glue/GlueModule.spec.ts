@@ -1,4 +1,5 @@
 import GlueModule from '../../src/Glue/GlueModule';
+import GlueConfig from '../../src/Glue/GlueConfig';
 
 const body : Element = document.getElementsByTagName( 'body' )[ 0 ];
 
@@ -8,24 +9,14 @@ describe( 'GlueModule', () => {
         body.innerHTML = '';
     } );
     
-    it( 'should return its class name', async () => {
-        
-        class MyModule extends GlueModule {
-            name = 'MyModule';
-        }
-        
-        const module = new MyModule();
-        
-        expect( module.name ).toBe( 'MyModule' );
-    } );
-    
     it( 'should return its id', async () => {
         
         class MyModule extends GlueModule {
-            name = 'MyModule';
         }
         
-        const module = new MyModule();
+        const module   = new MyModule();
+        module.element = document.createElement( 'div' );
+        module.config  = new GlueConfig();
         await module.start();
         
         expect( module.id ).toBeTruthy();
@@ -38,14 +29,14 @@ describe( 'GlueModule', () => {
         const MyModuleHTML = '<p>some<span>markup</span></p>';
         
         class MyModule extends GlueModule {
-            name = 'MyModule';
-            async render() : Promise<string> {
+            async render() {
                 return MyModuleHTML;
             }
         }
     
         const module   = new MyModule();
         module.element = document.getElementById( 'my-module' );
+        module.config  = new GlueConfig();
         await module.start();
     
         expect( module.element.innerHTML ).toBe( MyModuleHTML );
@@ -59,14 +50,14 @@ describe( 'GlueModule', () => {
         body.innerHTML = `<div id="my-module" data-js-module="MyModule">${originalMarkup}</div>`;
         
         class MyModule extends GlueModule {
-            name = 'MyModule';
-            async render() : Promise<string> {
+            async render() {
                 return injectedMarkup;
             }
         }
         
         const module   = new MyModule();
         module.element = document.getElementById( 'my-module' );
+        module.config  = new GlueConfig();
         
         await module.start();
         expect( module.element.innerHTML ).toBe( injectedMarkup );
@@ -83,11 +74,11 @@ describe( 'GlueModule', () => {
         body.innerHTML = `<div id="my-module" data-js-module="MyModule">${originalMarkup}</div>`;
         
         class MyModule extends GlueModule {
-            name = 'MyModule';
         }
     
         const module   = new MyModule();
         module.element = document.getElementById( 'my-module' );
+        module.config  = new GlueConfig();
     
         await module.start();
     
@@ -110,7 +101,6 @@ describe( 'GlueModule', () => {
         const spyThree = spyOn( spy, 'three' );
         
         class MyModule extends GlueModule {
-            name = 'MyModule';
             public async start() : Promise<void> {
                 await spyOne();
                 await spyOne();
@@ -128,6 +118,7 @@ describe( 'GlueModule', () => {
         
         const module   = new MyModule();
         module.element = document.getElementById( 'my-module' );
+        module.config  = new GlueConfig();
         
         await module.start();
         expect( spyOne ).toHaveBeenCalledTimes( 2 );

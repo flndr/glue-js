@@ -1,10 +1,12 @@
 import { createUniqueId } from '../Util/Dom';
 import GlueModuleInterface from './GlueModuleInterface';
+import GlueConfig from './GlueConfig';
 
 export default abstract class GlueModule implements GlueModuleInterface {
     
     private _id : string;
     private _el : Element;
+    private _config : GlueConfig;
     
     protected oldMarkup : string;
     protected newMarkup : string;
@@ -15,6 +17,14 @@ export default abstract class GlueModule implements GlueModuleInterface {
 
     public set element( el : Element ) {
         this._el = el;
+    }
+    
+    public get config() : GlueConfig {
+        return this._config;
+    }
+    
+    public set config( c : GlueConfig ) {
+        this._config = c;
     }
     
     public get id() : string {
@@ -28,6 +38,11 @@ export default abstract class GlueModule implements GlueModuleInterface {
 
     private assignId() {
         this._id = createUniqueId();
+        this._el.setAttribute( this._config.ATTR_MODULE_ID, this._id );
+    }
+    
+    private removeId() {
+        this._el.removeAttribute( this.config.ATTR_MODULE_ID );
     }
     
     private async injectMarkup() {
@@ -40,7 +55,7 @@ export default abstract class GlueModule implements GlueModuleInterface {
     }
 
     private restoreMarkup() {
-        if ( this.element && this.oldMarkup && this.oldMarkup !== '' ) {
+        if ( this.element && this.oldMarkup !== null ) {
             this.element.innerHTML = this.oldMarkup;
         }
     }
@@ -51,5 +66,6 @@ export default abstract class GlueModule implements GlueModuleInterface {
     
     public async stop() : Promise<void> {
         this.restoreMarkup();
+        this.removeId();
     }
 }

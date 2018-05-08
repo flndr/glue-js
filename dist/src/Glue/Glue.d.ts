@@ -14,6 +14,11 @@ export default class Glue {
     private loadLazyModule(moduleName);
     private startModule(el);
     start(domNode?: Element): Promise<void>;
+    stop(domNode?: Element): Promise<void>;
+    private stopModule(el);
     getUnstartedDomNodes(domNode?: Element): Element[];
+    getStartedDomNodes(domNode?: Element): Element[];
     private getModuleNameFromElement(element);
+    private getModuleIdFromElement(element);
+    getConfigClone(): GlueConfig;
 }

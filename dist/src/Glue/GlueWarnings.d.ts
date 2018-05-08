@@ -5,6 +5,7 @@ declare namespace GlueWarnings {
     const ALREADY_STARTED = "This has no effect now. Configuration has to be done before starting.";
     const NOT_STARTED = "Not started. Method not available.";
     const START_MODULE_NOT_REGISTERED = "Could not start module: A module '{name}' is not registered.";
-    const START_FAILED = "Start of module '{name}' failed:";
+    const START_FAILED = "Starting of module '{name}' failed:";
+    const STOP_FAILED = "Stoping of module '{name}' failed:";
 }
 export default GlueWarnings;
