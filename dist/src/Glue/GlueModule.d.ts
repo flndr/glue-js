@@ -5,7 +5,6 @@ export default abstract class GlueModule implements GlueModuleInterface {
     protected oldMarkup: string;
     protected newMarkup: string;
     element: Element;
-    readonly abstract name: string;
     readonly id: string;
     start(): Promise<void>;
     private assignId();
