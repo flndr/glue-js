@@ -112,6 +112,10 @@ export default class Glue {
     }
     
     public async start( domNode : Element = this.CONFIG.ROOT_ELEMENT ) : Promise<void> {
+    
+        if ( !domNode || !isDomElement( domNode ) ) {
+            throw new Error( GlueErrors.NOT_A_DOM_ELEMENT );
+        }
         
         const modules : Element[] = this.getUnstartedDomNodes( domNode );
         

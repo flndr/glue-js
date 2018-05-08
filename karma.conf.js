@@ -24,25 +24,23 @@ module.exports = function( config ) {
             'dist'
         ],
 
-        // add both "karma-coverage" and "karma-remap-coverage" reporters
-        reporters : [ 'progress', 'coverage', 'remap-coverage' ],
+        reporters : [ 'mocha', 'coverage', 'remap-coverage' ],
 
         // save interim raw coverage report in memory
         coverageReporter : { type : 'in-memory' },
 
         remapOptions: { exclude: /.spec\.(js|ts)$/ },
 
-        // define where to save final remaped coverage reports
         remapCoverageReporter : {
             'text-summary' : null,
-            html           : './coverage/html',
-            cobertura      : './coverage/cobertura.xml'
+            html           : './coverage'
         },
 
         webpack : webpackConfig,
 
         // make sure both reporter plugins are loaded
         plugins : [
+            'karma-mocha-reporter',
             'karma-coverage',
             'karma-jasmine',
             'karma-phantomjs-launcher',

@@ -1,5 +1,5 @@
 interface GlueModuleInterface {
-    id : string; 
+    id : string;
     element : Element;
 
     // LIFECYCLE

@@ -183,6 +183,71 @@ describe( 'Glue', () => {
             expect( third.innerHTML ).toEqual( 'MyThirdModule' );
         } );
     
+        it( 'should only start modules of a dom node, when specified', async () => {
+        
+            class MyFirstModule extends GlueModule {
+                async render() {
+                    return 'MyFirstModule';
+                }
+            }
+        
+            class MySecondModule extends GlueModule {
+                async render() {
+                    return 'MySecondModule';
+                }
+            }
+        
+            class MyThirdModule extends GlueModule {
+                async render() {
+                    return 'MyThirdModule';
+                }
+            }
+        
+            glue.registerModule( 'MyFirstModule', MyFirstModule );
+            glue.registerModule( 'MySecondModule', MySecondModule );
+            glue.registerModule( 'MyThirdModule', MyThirdModule );
+        
+            body.innerHTML = `
+                <div id="domNode">
+                    <div id="first" data-js-module="MyFirstModule"></div>
+                    <div id="second" data-js-module="MySecondModule"></div>
+                </div>
+                <div id="third" data-js-module="MyThirdModule"></div>
+            `;
+        
+            const domNode = document.getElementById( 'domNode' );
+        
+            await glue.start( domNode );
+        
+            const first  = document.getElementById( 'first' );
+            const second = document.getElementById( 'second' );
+            const third  = document.getElementById( 'third' );
+        
+            expect( first.innerHTML ).toEqual( 'MyFirstModule' );
+            expect( second.innerHTML ).toEqual( 'MySecondModule' );
+            expect( third.innerHTML ).toEqual( '' );
+            
+        } );
+    
+        it( 'should throw when 1st param is not a dom node', async () => {
+            
+            try {
+                await glue.start( document.getElementById( 'meNotExist' ) );
+            } catch ( err ) {
+                expect( err.message ).toEqual( GlueErrors.NOT_A_DOM_ELEMENT );
+                return;
+            }
+    
+            try {
+                await glue.start( null );
+            } catch ( err ) {
+                expect( err.message ).toEqual( GlueErrors.NOT_A_DOM_ELEMENT );
+                return;
+            }
+    
+            throw new Error( 'Promise should not be resolved' );
+        } );
+    
         it( 'should warn when there are unregistered modules in dom', async () => {
     
             spyOn( console, 'warn' );
@@ -212,7 +277,7 @@ describe( 'Glue', () => {
             expect( console.warn ).toHaveBeenCalledWith( warning, el );
         } );
         
-        it( 'should throw when module start fails', async () => {
+        it( 'should warn when module start fails', async () => {
             
             spyOn( console, 'warn' );
             
