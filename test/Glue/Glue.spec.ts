@@ -143,25 +143,25 @@ describe( 'Glue', () => {
     
     describe( 'start()', () => {
     
+        class MyFirstModule extends GlueModule {
+            async render() {
+                return 'MyFirstModule';
+            }
+        }
+    
+        class MySecondModule extends GlueModule {
+            async render() {
+                return 'MySecondModule';
+            }
+        }
+    
+        class MyThirdModule extends GlueModule {
+            async render() {
+                return 'MyThirdModule';
+            }
+        }
+    
         it( 'should start all modules in root dom node by default', async () => {
-        
-            class MyFirstModule extends GlueModule {
-                async render() {
-                    return 'MyFirstModule';
-                }
-            }
-        
-            class MySecondModule extends GlueModule {
-                async render() {
-                    return 'MySecondModule';
-                }
-            }
-        
-            class MyThirdModule extends GlueModule {
-                async render() {
-                    return 'MyThirdModule';
-                }
-            }
         
             glue.registerModule( 'MyFirstModule', MyFirstModule );
             glue.registerModule( 'MySecondModule', MySecondModule );
@@ -185,25 +185,7 @@ describe( 'Glue', () => {
         } );
     
         it( 'should limit starting of modules to a dom node, when specified', async () => {
-        
-            class MyFirstModule extends GlueModule {
-                async render() {
-                    return 'MyFirstModule';
-                }
-            }
-        
-            class MySecondModule extends GlueModule {
-                async render() {
-                    return 'MySecondModule';
-                }
-            }
-        
-            class MyThirdModule extends GlueModule {
-                async render() {
-                    return 'MyThirdModule';
-                }
-            }
-        
+    
             glue.registerModule( 'MyFirstModule', MyFirstModule );
             glue.registerModule( 'MySecondModule', MySecondModule );
             glue.registerModule( 'MyThirdModule', MyThirdModule );
@@ -294,17 +276,23 @@ describe( 'Glue', () => {
     
         } );
     
-        it( 'should start nested modules', async () => {
+        it( 'should start nested modules when needed', async () => {
         
             const spy = {
                 one   : async () => {},
                 two   : async () => {},
-                three : async () => {}
+                three : async () => {},
+                unmountThree : async () => {},
+                unmountTwo : async () => {},
+                unmountOne : async () => {},
             };
         
             const spyOne   = spyOn( spy, 'one' );
             const spyTwo   = spyOn( spy, 'two' );
             const spyThree = spyOn( spy, 'three' );
+            const spyUnmountOne   = spyOn( spy, 'unmountThree' );
+            const spyUnmountTwo   = spyOn( spy, 'unmountTwo' );
+            const spyUnmountThree = spyOn( spy, 'unmountOne' );
         
             body.innerHTML = `<div id="FirstLevel" data-js-module="FirstLevel"></div>`;
         
@@ -314,8 +302,12 @@ describe( 'Glue', () => {
                 }
             
                 async start() {
-                    super.start();
+                    await super.start();
                     await spyOne();
+                }
+    
+                async afterUnmount() {
+                    await spyUnmountOne();
                 }
             }
         
@@ -325,8 +317,12 @@ describe( 'Glue', () => {
                 }
             
                 async start() {
-                    super.start();
+                    await super.start();
                     await spyTwo();
+                }
+    
+                async afterUnmount() {
+                    await spyUnmountTwo();
                 }
             }
         
@@ -336,8 +332,13 @@ describe( 'Glue', () => {
                 }
             
                 async start() {
-                    super.start();
+                    await super.start();
                     await spyThree();
+                    console.log( 'third innerHTML', this.element.innerHTML );
+                }
+                
+                async afterUnmount() {
+                    await spyUnmountThree();
                 }
             }
         
@@ -351,6 +352,8 @@ describe( 'Glue', () => {
             const second = document.getElementById( 'SecondLevel' );
             const third  = document.getElementById( 'ThirdLevel' );
         
+            console.log( 'third', third );
+            
             const secondId = second.getAttribute( 'data-js-module-id' );
             const thirdId  = third.getAttribute( 'data-js-module-id' );
         
@@ -379,6 +382,15 @@ describe( 'Glue', () => {
             expect( spyTwo ).toHaveBeenCalledBefore( spyThree );
             expect( spyOne ).toHaveBeenCalledBefore( spyTwo );
         
+            await glue.stop();
+    
+            expect( spyUnmountThree ).toHaveBeenCalledTimes( 1 );
+            expect( spyUnmountTwo ).toHaveBeenCalledTimes( 1 );
+            expect( spyUnmountOne ).toHaveBeenCalledTimes( 1 );
+    
+            expect( spyUnmountThree ).toHaveBeenCalledBefore( spyUnmountTwo );
+            expect( spyUnmountTwo ).toHaveBeenCalledBefore( spyUnmountOne );
+            
         } );
     
     } );
@@ -719,12 +731,9 @@ describe( 'Glue', () => {
     describe( 'constructor()', () => {
         
         it( 'should throw when root dom node is not a native dom node', () => {
-            
-            class FailingConfig extends GlueConfig {
-                ROOT_ELEMENT = document.getElementById( '404' ) as Element;
-            }
-            
-            const config = new FailingConfig();
+    
+            const config        = { ... GlueConfig };
+            config.ROOT_ELEMENT = document.getElementById( '404' ) as Element;
             
             expect( () => new Glue( config ) ).toThrow(
                 new Error( GlueErrors.ROOT_ELEMENT_FAIL )

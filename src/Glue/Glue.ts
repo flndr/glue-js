@@ -1,6 +1,7 @@
 import { isDomElement } from '../Util/Dom';
 import { renderTemplate } from '../Util/String';
 
+import GlueConfigInterface from './GlueConfigInterface';
 import GlueModuleInterface from './GlueModuleInterface';
 import GlueConfig from './GlueConfig';
 import GlueErrors from './GlueErrors';
@@ -9,13 +10,13 @@ import GlueWarnings from './GlueWarnings';
 
 export default class Glue {
     
-    private CONFIG : GlueConfig;
+    readonly CONFIG : GlueConfigInterface;
     
     private lazyModules : { [ key : string ] : () => Promise<any> }                  = {};
     private registeredModules : { [ key : string ] : new () => GlueModuleInterface } = {};
     private runningModules : { [ key : string ] : GlueModuleInterface }              = {};
     
-    constructor( config : GlueConfig = new GlueConfig() ) {
+    constructor( config = GlueConfig ) {
         
         if ( !isDomElement( config.ROOT_ELEMENT ) ) {
             throw new Error( GlueErrors.ROOT_ELEMENT_FAIL );
@@ -172,12 +173,6 @@ export default class Glue {
         }
     }
     
-    
-    
-    //private findAllModules( domNode : Element = this.CONFIG.ROOT_ELEMENT ) : Element[] {
-    //    return Array.from( domNode.querySelectorAll( '[' + this.CONFIG.ATTR_MODULE_NAME + ']' ) );
-    //}
-    
     public getUnstartedDomNodes( domNode : Element = this.CONFIG.ROOT_ELEMENT ) : Element[] {
         return Array.from(
             domNode.querySelectorAll(
@@ -200,7 +195,7 @@ export default class Glue {
         return element.getAttribute( this.CONFIG.ATTR_MODULE_ID ) as string;
     }
     
-    public getConfigClone() : GlueConfig {
+    public getConfigClone() : GlueConfigInterface {
         return { ... this.CONFIG };
     }
     

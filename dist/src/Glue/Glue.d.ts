@@ -1,11 +1,12 @@
+import GlueConfigInterface from './GlueConfigInterface';
 import GlueConfig from './GlueConfig';
 import GlueModule from './GlueModule';
 export default class Glue {
-    private CONFIG;
+    readonly CONFIG: GlueConfigInterface;
     private lazyModules;
     private registeredModules;
     private runningModules;
-    constructor(config?: GlueConfig);
+    constructor(config?: typeof GlueConfig);
     getRootElement(): Element;
     registerModule(name: string, module: new () => GlueModule): void;
     registerLazyModule(name: string, dynamicImportFunc: () => Promise<any>): void;
@@ -20,5 +21,5 @@ export default class Glue {
     getStartedDomNodes(domNode?: Element): Element[];
     private getModuleNameFromElement(element);
     private getModuleIdFromElement(element);
-    getConfigClone(): GlueConfig;
+    getConfigClone(): GlueConfigInterface;
 }

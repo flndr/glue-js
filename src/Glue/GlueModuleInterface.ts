@@ -1,9 +1,9 @@
-import GlueConfig from './GlueConfig';
+import GlueConfigInterface from './GlueConfigInterface';
 
 interface GlueModuleInterface {
     id : string;
     element : Element;
-    config : GlueConfig;
+    config : GlueConfigInterface;
 
     // LIFECYCLE
 
@@ -11,16 +11,24 @@ interface GlueModuleInterface {
     // will just inject returned markup into dom element
     render() : Promise<string>;
 
-    // 2 - START (optional)
+    // 2 - START / MOUNT
     // markup is now available, do something like
     // bind listeners, load further data and inject more markup, etc.
     start() : Promise<void>;
 
-    // 3 - STOP
+    // 3 - STOP / UNMOUNT
     // restores original markup of element, use this to
     // unbind listeners, etc.
     stop() : Promise<void>;
-
+    
+    beforeMount() : Promise<void>;
+    
+    afterMount() : Promise<void>;
+    
+    beforeUnmount() : Promise<void>;
+    
+    afterUnmount() : Promise<void>;
+    
     /*
 
     for workflow-modules must be something like this
@@ -55,6 +63,7 @@ interface GlueModuleInterface {
     */
 
     /*
+    
         https://reactjs.org/docs/higher-order-components.html
         build a HOC component that can render
             hotels, flights, destinations,
@@ -70,7 +79,7 @@ interface GlueModuleInterface {
             - pool of atomic and re-usable stateless components for corporate design ui elements ( buttons, dialogs, layouts )
             - controller-like components for workflow-steps ()
         
-        MID LAYER --> STATE & COMUNICATION : mobx, ibe-workflow-ts
+        MID LAYER --> DATA/STATE & COMMUNICATION : mobx, ibe-workflow-ts
             - state management (ts singletons with mobx power)
                 gets
             - step and component registry (ibe-workflow-ts)

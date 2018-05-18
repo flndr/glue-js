@@ -1,15 +1,23 @@
 import { createUniqueId } from '../Util/Dom';
 import GlueModuleInterface from './GlueModuleInterface';
-import GlueConfig from './GlueConfig';
+import GlueConfigInterface from './GlueConfigInterface';
 
 export default abstract class GlueModule implements GlueModuleInterface {
     
     private _id : string;
     private _el : Element;
-    private _config : GlueConfig;
+    private _config : GlueConfigInterface;
     
     protected oldMarkup : string;
     protected newMarkup : string;
+    
+    public async beforeMount() : Promise<void> {}
+    
+    public async afterMount() : Promise<void> {}
+    
+    public async beforeUnmount() : Promise<void> {}
+    
+    public async afterUnmount() : Promise<void> {}
     
     public get element() : Element {
         return this._el;
@@ -19,11 +27,11 @@ export default abstract class GlueModule implements GlueModuleInterface {
         this._el = el;
     }
     
-    public get config() : GlueConfig {
+    public get config() {
         return this._config;
     }
     
-    public set config( c : GlueConfig ) {
+    public set config( c ) {
         this._config = c;
     }
     
@@ -32,8 +40,10 @@ export default abstract class GlueModule implements GlueModuleInterface {
     }
     
     public async start() : Promise<void> {
+        await this.beforeMount();
         this.assignId();
         await this.injectMarkup();
+        await this.afterMount();
     }
 
     private assignId() {
@@ -47,7 +57,6 @@ export default abstract class GlueModule implements GlueModuleInterface {
     
     private async injectMarkup() {
         this.newMarkup = await this.render();
-
         if ( this.element && this.newMarkup && this.newMarkup !== '' ) {
             this.oldMarkup         = this.element.innerHTML;
             this.element.innerHTML = this.newMarkup;
@@ -65,7 +74,9 @@ export default abstract class GlueModule implements GlueModuleInterface {
     }
     
     public async stop() : Promise<void> {
+        await this.beforeUnmount();
         this.restoreMarkup();
         this.removeId();
+        await this.afterUnmount();
     }
 }
