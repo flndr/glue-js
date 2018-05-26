@@ -3,7 +3,7 @@ import GlueConfig from '../Glue/GlueConfig';
 import GlueModule from '../Glue/GlueModule';
 import { createUniqueId } from '../Util/Dom';
 
-export class Stepper {
+export default class GlueStepper {
     
     readonly el : Element;
     

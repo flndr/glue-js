@@ -1,5 +1,5 @@
 import GlueModule from '../Glue/GlueModule';
-export declare class Stepper {
+export default class GlueStepper {
     readonly el: Element;
     private glue;
     private glueConfig;
