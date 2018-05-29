@@ -35,7 +35,7 @@ export default class GlueStepper {
         this.injectStep( type );
         await this.glue.start();
     }
-    
+       
     public async stop() : Promise<void> {
         await this.glue.stop();
         this.el.innerHTML = ''
