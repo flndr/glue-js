@@ -11,15 +11,15 @@ export default class Glue {
     registerModule(name: string, module: new () => GlueModule): void;
     registerLazyModule(name: string, dynamicImportFunc: () => Promise<any>): void;
     isModuleRegistered(moduleName: string): boolean;
-    private isLazyModule(moduleName);
-    private loadLazyModule(moduleName);
-    private startModule(el);
+    private isLazyModule;
+    private loadLazyModule;
+    private startModule;
     start(domNode?: Element): Promise<void>;
     stop(domNode?: Element): Promise<void>;
-    private stopModule(el);
+    private stopModule;
     getUnstartedDomNodes(domNode?: Element): Element[];
     getStartedDomNodes(domNode?: Element): Element[];
-    private getModuleNameFromElement(element);
-    private getModuleIdFromElement(element);
+    private getModuleNameFromElement;
+    private getModuleIdFromElement;
     getConfigClone(): GlueConfigInterface;
 }

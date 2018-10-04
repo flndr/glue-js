@@ -14,10 +14,10 @@ export default abstract class GlueModule implements GlueModuleInterface {
     config: GlueConfigInterface;
     readonly id: string;
     start(): Promise<void>;
-    private assignId();
-    private removeId();
-    private injectMarkup();
-    private restoreMarkup();
+    private assignId;
+    private removeId;
+    private injectMarkup;
+    private restoreMarkup;
     render(): Promise<string>;
     stop(): Promise<void>;
 }
