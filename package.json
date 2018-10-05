@@ -1,6 +1,6 @@
 {
     "name": "module-glue-ts",
-    "version": "0.0.12",
+    "version": "0.0.13",
     "description": "",
     "main": "dist/index.js",
     "types": "dist/src/index.d.ts",
