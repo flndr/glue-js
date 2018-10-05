@@ -101,6 +101,7 @@ export default class Glue {
             
             module.element = el;
             module.config  = this.getConfigClone();
+            module.glue    = this;
             
             await module.start();
     

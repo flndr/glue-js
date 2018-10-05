@@ -1,12 +1,14 @@
 import { createUniqueId } from '../Util/Dom';
 import GlueModuleInterface from './GlueModuleInterface';
 import GlueConfigInterface from './GlueConfigInterface';
+import Glue from './Glue';
 
 export default abstract class GlueModule implements GlueModuleInterface {
     
     private _id : string;
     private _el : Element;
     private _config : GlueConfigInterface;
+    private _glue : Glue;
     
     protected oldMarkup : string;
     protected newMarkup : string;
@@ -18,6 +20,14 @@ export default abstract class GlueModule implements GlueModuleInterface {
     public async beforeUnmount() : Promise<void> {}
     
     public async afterUnmount() : Promise<void> {}
+    
+    public get glue() : Glue {
+        return this._glue;
+    }
+
+    public set glue( g : Glue ) {
+        this._glue = g;
+    }
     
     public get element() : Element {
         return this._el;

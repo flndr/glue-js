@@ -1,9 +1,11 @@
 import GlueConfigInterface from './GlueConfigInterface';
+import Glue from './Glue';
 
 interface GlueModuleInterface {
     id : string;
     element : Element;
     config : GlueConfigInterface;
+    glue : Glue;
 
     // LIFECYCLE
 
@@ -20,6 +22,13 @@ interface GlueModuleInterface {
     // restores original markup of element, use this to
     // unbind listeners, etc.
     stop() : Promise<void>;
+    
+    
+    
+    
+    
+    
+    
     
     beforeMount() : Promise<void>;
     

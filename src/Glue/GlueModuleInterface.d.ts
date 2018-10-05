@@ -1,8 +1,10 @@
 import GlueConfigInterface from './GlueConfigInterface';
+import Glue from './Glue';
 interface GlueModuleInterface {
     id: string;
     element: Element;
     config: GlueConfigInterface;
+    glue: Glue;
     render(): Promise<string>;
     start(): Promise<void>;
     stop(): Promise<void>;
