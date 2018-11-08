@@ -4,12 +4,4 @@ import GlueModule from './Glue/GlueModule';
 import GlueStepper from './Step/GlueStepper';
 import GlueModuleInterface from './Glue/GlueModuleInterface';
 import { load } from './Util/File';
-
-export {
-    Glue,
-    GlueConfig,
-    GlueModule,
-    GlueModuleInterface,
-    GlueStepper,
-    load
-};
+export { Glue, GlueConfig, GlueModule, GlueModuleInterface, GlueStepper, load };

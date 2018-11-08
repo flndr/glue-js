@@ -1,0 +1,63 @@
+---
+name: Intro
+route: /blah
+menu: Documents
+---
+
+import { Playground } from 'docz'
+import { Comp } from './Comp'
+import Glue from '../src/Glue/Glue'
+
+# h1
+
+
+
+## h2
+
+### h3
+
+Inline `code` has `back-ticks around` it.
+
+
+```javascript
+var s = "JavaScript syntax highlighting";
+alert(s);
+```
+ 
+```python
+s = "Python syntax highlighting"
+print s
+```
+ 
+
+import GlueModule from '../src/Glue/GlueModule';
+
+export default 
+
+<Playground>
+    {() => {
+        const glue = new Glue();
+
+    
+
+        class ExampleModule extends GlueModule {
+
+            async render() {
+                return '<p>oh, hello there.</p>';
+            }
+
+            async afterMount() {
+                this.element.querySelector('p').style.color = 'red';
+            }
+        }
+
+            glue.registerLazyModule( 'ExampleModule', ExampleModule );
+
+   
+
+        return <div>
+        <div data-js-module="ExampleModule">this is where the module is loaded into</div>
+        <button onClick={console.log}>glue.start</button>
+        </div>
+    }}
+</Playground>

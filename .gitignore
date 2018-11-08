@@ -1,5 +1,7 @@
 .idea
+.docz
 node_modules
 coverage
-
+yarn-error.log
+yarn.lock
 .DS_Store

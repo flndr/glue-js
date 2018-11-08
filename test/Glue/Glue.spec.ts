@@ -732,10 +732,11 @@ describe( 'Glue', () => {
         
         it( 'should throw when root dom node is not a native dom node', () => {
     
-            const config        = { ... GlueConfig };
-            config.ROOT_ELEMENT = document.getElementById( '404' ) as Element;
-            
-            expect( () => new Glue( config ) ).toThrow(
+            class MyConfig extends GlueConfig {
+                ROOT_ELEMENT = document.getElementById( '404' ) as Element;
+            }
+    
+            expect( () => new Glue( new MyConfig() ) ).toThrow(
                 new Error( GlueErrors.ROOT_ELEMENT_FAIL )
             );
         } );

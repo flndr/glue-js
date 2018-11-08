@@ -16,7 +16,7 @@ export default class Glue {
     private registeredModules : { [ key : string ] : new () => GlueModuleInterface } = {};
     private runningModules : { [ key : string ] : GlueModuleInterface }              = {};
     
-    constructor( config = GlueConfig ) {
+    constructor( config : GlueConfig = new GlueConfig() ) {
         
         if ( !isDomElement( config.ROOT_ELEMENT ) ) {
             throw new Error( GlueErrors.ROOT_ELEMENT_FAIL );

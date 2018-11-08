@@ -16,7 +16,7 @@ describe( 'GlueModule', () => {
         
         const module   = new MyModule();
         module.element = document.createElement( 'div' );
-        module.config  = GlueConfig;
+        module.config  = new GlueConfig();
         await module.start();
         
         expect( module.id ).toBeTruthy();
@@ -36,7 +36,7 @@ describe( 'GlueModule', () => {
     
         const module   = new MyModule();
         module.element = document.getElementById( 'my-module' );
-        module.config  = GlueConfig;
+        module.config  = new GlueConfig();
         await module.start();
     
         expect( module.element.innerHTML ).toBe( MyModuleHTML );
@@ -57,7 +57,7 @@ describe( 'GlueModule', () => {
         
         const module   = new MyModule();
         module.element = document.getElementById( 'my-module' );
-        module.config  = GlueConfig;
+        module.config  = new GlueConfig();
         
         await module.start();
         expect( module.element.innerHTML ).toBe( injectedMarkup );
@@ -78,7 +78,7 @@ describe( 'GlueModule', () => {
     
         const module   = new MyModule();
         module.element = document.getElementById( 'my-module' );
-        module.config  = GlueConfig;
+        module.config  = new GlueConfig();
     
         await module.start();
     
@@ -118,7 +118,7 @@ describe( 'GlueModule', () => {
         
         const module   = new MyModule();
         module.element = document.getElementById( 'my-module' );
-        module.config  = GlueConfig;
+        module.config  = new GlueConfig();
         
         await module.start();
         expect( spyOne ).toHaveBeenCalledTimes( 2 );
