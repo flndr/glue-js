@@ -8,7 +8,7 @@ export default class Glue {
     private runningModules;
     constructor(config?: GlueConfig);
     getRootElement(): Element;
-    registerModule(name: string, module: new () => GlueModule): void;
+    registerModule(name: string, module: new () => GlueModule, wasLazyBefore?: boolean): void;
     registerLazyModule(name: string, dynamicImportFunc: () => Promise<any>): void;
     isModuleRegistered(moduleName: string): boolean;
     private isLazyModule;

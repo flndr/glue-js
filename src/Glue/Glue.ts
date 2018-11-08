@@ -29,7 +29,13 @@ export default class Glue {
         return this.CONFIG.ROOT_ELEMENT;
     }
     
-    public registerModule( name : string, module : new () => GlueModule ) : void {
+    public registerModule(
+        name : string,
+        module : new () => GlueModule,
+        wasLazyBefore ? : boolean
+    ) : void {
+        
+        const wasLazy = wasLazyBefore || false;
         
         if ( !name || typeof name !== 'string' || name === '' ) {
             throw new Error( GlueErrors.NOT_A_STRING );
@@ -47,7 +53,13 @@ export default class Glue {
         
         if ( this.registeredModules.hasOwnProperty( name ) ) {
             const msg = renderTemplate( GlueErrors.ALREADY_REGISTERED, { name } );
-            throw new Error( msg );
+            if ( wasLazy ) {
+                console.warn( 'Attention: A lazy loaded module was already registered.' );
+                console.warn( msg );
+            } else {
+                throw new Error( msg );
+            }
+            
         }
         
         this.registeredModules[ name ] = module;
@@ -89,7 +101,7 @@ export default class Glue {
     
         if ( this.isLazyModule( moduleName ) ) {
             const creator = await this.loadLazyModule( moduleName );
-            this.registerModule( moduleName, creator );
+            this.registerModule( moduleName, creator, true );
             delete this.lazyModules[ moduleName ];
         }
         
