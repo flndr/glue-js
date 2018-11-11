@@ -1,1 +1,1 @@
-export declare function load(url: string | string[]): Promise<void>;
+export declare function load(url: string | string[]): Promise<() => void>;
