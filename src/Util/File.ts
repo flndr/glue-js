@@ -1,4 +1,3 @@
-
 export type unload = () => void;
 
 export async function load( url : string | string[] ) : Promise<unload> {
@@ -7,7 +6,7 @@ export async function load( url : string | string[] ) : Promise<unload> {
     const tags = await Promise.all( urls.map( inject ) );
     
     const unload : unload = () => {
-        tags.forEach( tag => tag.parentElement.removeChild( tag ) );
+        tags.forEach( tag => document.head.removeChild( tag ) );
     };
     
     return unload;
@@ -29,6 +28,7 @@ function inject( url : string ) : Promise<HTMLLinkElement | HTMLScriptElement> {
         tag.addEventListener( 'abort', () => reject( 'File loading aborted.' ) );
         
         document.head.appendChild( tag );
+        console.log( 'appended', tag );
     } );
 }
 
