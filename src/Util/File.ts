@@ -1,9 +1,15 @@
-const cache : { [ src : string ] : Promise<void> } = {};
+const cache : { [ src : string ] : Promise<HTMLLinkElement | HTMLScriptElement> } = {};
 
-export async function load( url : string | string[] ) {
+export async function load( url : string | string[] ) : Promise<() => void> {
     const urls = Array.isArray( url ) ? url : [ url ];
     
-    await Promise.all( urls.map( addToCacheAndReturnPromise ) );
+    const tags = await Promise.all( urls.map( addToCacheAndReturnPromise ) );
+    
+    return () => removeTags( tags );
+}
+
+function removeTags( tags : Array<HTMLLinkElement | HTMLScriptElement> ) {
+    tags.forEach( tag => tag.parentElement.removeChild( tag ) );
 }
 
 function addToCacheAndReturnPromise( url : string ) {
@@ -14,7 +20,7 @@ function addToCacheAndReturnPromise( url : string ) {
     return cache[ url ];
 }
 
-function inject( url : string ) : Promise<void> {
+function inject( url : string ) : Promise<HTMLLinkElement | HTMLScriptElement> {
     return new Promise( ( resolve, reject ) => {
         
         const ext = url.split( '.' ).pop().toLowerCase();
@@ -25,7 +31,7 @@ function inject( url : string ) : Promise<void> {
         
         const tag = ext === 'js' ? createScript( url ) : createLink( url );
         
-        tag.addEventListener( 'load', () => resolve() );
+        tag.addEventListener( 'load', () => resolve( tag ) );
         tag.addEventListener( 'error', () => reject( 'Error loading file.' ) );
         tag.addEventListener( 'abort', () => reject( 'File loading aborted.' ) );
         
