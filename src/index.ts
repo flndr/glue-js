@@ -3,7 +3,7 @@ import GlueConfig from './Glue/GlueConfig';
 import GlueModule from './Glue/GlueModule';
 import GlueStepper from './Step/GlueStepper';
 import GlueModuleInterface from './Glue/GlueModuleInterface';
-import { load } from './Util/File';
+import { load, unload } from './Util/File';
 
 export {
     Glue,
@@ -11,5 +11,6 @@ export {
     GlueModule,
     GlueModuleInterface,
     GlueStepper,
-    load
+    load,
+    unload
 };

@@ -1,15 +1,17 @@
 const cache : { [ src : string ] : Promise<HTMLLinkElement | HTMLScriptElement> } = {};
 
-export async function load( url : string | string[] ) : Promise<() => void> {
+export type unload = () => void;
+
+export async function load( url : string | string[] ) : Promise<unload> {
     const urls = Array.isArray( url ) ? url : [ url ];
     
     const tags = await Promise.all( urls.map( addToCacheAndReturnPromise ) );
     
-    return () => removeTags( tags );
-}
-
-function removeTags( tags : Array<HTMLLinkElement | HTMLScriptElement> ) {
-    tags.forEach( tag => tag.parentElement.removeChild( tag ) );
+    const unload : unload = () => {
+        tags.forEach( tag => tag.parentElement.removeChild( tag ) );
+    };
+    
+    return unload;
 }
 
 function addToCacheAndReturnPromise( url : string ) {
