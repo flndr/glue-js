@@ -1,25 +1,16 @@
-const cache : { [ src : string ] : Promise<HTMLLinkElement | HTMLScriptElement> } = {};
 
 export type unload = () => void;
 
 export async function load( url : string | string[] ) : Promise<unload> {
     const urls = Array.isArray( url ) ? url : [ url ];
     
-    const tags = await Promise.all( urls.map( addToCacheAndReturnPromise ) );
+    const tags = await Promise.all( urls.map( inject ) );
     
     const unload : unload = () => {
         tags.forEach( tag => tag.parentElement.removeChild( tag ) );
     };
     
     return unload;
-}
-
-function addToCacheAndReturnPromise( url : string ) {
-    if ( !cache.hasOwnProperty( url ) ) {
-        cache[ url ] = inject( url );
-    }
-    
-    return cache[ url ];
 }
 
 function inject( url : string ) : Promise<HTMLLinkElement | HTMLScriptElement> {
