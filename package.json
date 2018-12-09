@@ -2,7 +2,7 @@
     "name": "module-glue-ts",
     "version": "0.0.27",
     "description": "",
-    "main": "dist/index.js",
+    "module": "dist/index.js",
     "types": "dist/src/index.d.ts",
     "scripts": {
         "release": "release-it",

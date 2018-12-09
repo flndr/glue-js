@@ -7,6 +7,7 @@ class GlueErrors {
     static NOT_A_DOM_ELEMENT          = "Passed variable is not a native DOM element.";
     static ROOT_ELEMENT_FAIL          = "Configuration Error: Root element is not a DOM Node.";
     static LAZY_IMPORT_HAS_NO_DEFAULT = "Lazy loaded module file has no default export.";
+    static LAZY_IMPORT_HAS_METHODS    = "Lazy loaded module file has no start, render and stop exports.";
     static MODULE_INIT_ERROR          = "Something went wrong when inititializing a module.";
 }
 
